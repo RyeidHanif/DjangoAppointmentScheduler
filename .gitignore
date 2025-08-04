@@ -215,3 +215,5 @@ credentials.json
 api/exception_handler.py
 media
 test_image_*.jpg
+selfsigned.crt 
+selsigned.key

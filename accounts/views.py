@@ -21,8 +21,7 @@ from .tokens import account_activation_token
 from django_smart_ratelimit import rate_limit
 
 
-# Create your views here.
-@rate_limit(key='ip', rate='10/h',skip_if=lambda req: req.user.is_staff,)
+
 def activateEmail(request, user, to_email):
     """
     Sends The Verification Email to the user after forming the redirect url
@@ -84,7 +83,6 @@ class SignUp(View):
 
 signup = SignUp.as_view()
 
-@rate_limit(key='ip', rate='10/h',skip_if=lambda req: req.user.is_staff,)
 def activate(request, uidb64, token):
     """
     Verifies the user email , Creates the Notification Preferences object for the user and logs them in
@@ -121,7 +119,7 @@ def activate(request, uidb64, token):
     return redirect("home")
 
 
-@rate_limit(key='user', rate='1/h' ,skip_if=lambda req: req.user.is_staff,)
+
 @login_required(login_url="/login/")
 def password_change(request):
     """

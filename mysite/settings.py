@@ -78,7 +78,7 @@ MIDDLEWARE = [
 ]
 
 RATELIMIT_MIDDLEWARE = {
-    'DEFAULT_RATE': '30/m',
+    'DEFAULT_RATE': '90/m',
     'CONDITION': 'main.utils.skip_if_superuser',
 }
 

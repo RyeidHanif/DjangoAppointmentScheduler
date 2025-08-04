@@ -24,7 +24,7 @@ from .utils import (EmailPendingAppointment, EmailRescheduledAppointment,
                     check_appointment_exists, create_and_save_appointment)
 from django_smart_ratelimit import rate_limit
 from django.utils.decorators import method_decorator
-
+from logging_conf import logger
 class CustomerDashboardView(LoginRequiredMixin, TemplateView):
     """
     Generic Template Vieww to allow user with customer profile to navigate the Application
@@ -346,6 +346,7 @@ class AddAppointmentView(LoginRequiredMixin, View):
             self.appointment = Appointment.objects.filter(
                 customer=self.customer, provider=self.provider_user
             ).first()
+           
             self.appointment = change_and_save_appointment(
                 request,
                 self.appointment,
@@ -355,6 +356,7 @@ class AddAppointmentView(LoginRequiredMixin, View):
                 self.end_datetime,
                 self.total_price,
             )
+           
             request.session.pop("mode", None)
             if self.appointment:
                 messages.success(request, " appointment reschedule successfully ")
@@ -495,7 +497,7 @@ class ViewAppointmentsView(LoginRequiredMixin, View):
                 logout(request)
                 messages.warning(
                     request,
-                    "You have cancelled too many appointments in a shot span , your account has been deactivated ",
+                    "You have cancelled too many appointments in a short span , your account has been deactivated ",
                 )
 
                 return redirect("home")

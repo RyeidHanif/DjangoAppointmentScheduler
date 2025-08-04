@@ -11,6 +11,7 @@ from django.utils.timezone import (activate, get_current_timezone, localdate,
 from googleapiclient.errors import HttpError
 
 from main.models import Appointment, ProviderProfile
+from logging_conf import logger
 
 activate("Asia/Karachi")
 
@@ -154,6 +155,7 @@ def change_and_save_appointment(
     """
     Used in the AddAppointmentview in the case that the appointment is being rescheduled
     """
+    
     old_start = appointment.date_start
     old_end = appointment.date_end
 
@@ -164,7 +166,9 @@ def change_and_save_appointment(
     appointment.recurrence_until = until_date
     appointment.special_requests = request.POST.get("special_requests", "")
     appointment.total_price = total_price
+    
     appointment.save()
+    
 
     if appointment.provider.notification_settings.preferences == "all":
 
@@ -179,4 +183,5 @@ def change_and_save_appointment(
             appointment.provider.email,
             appointment.special_requests,
         )
+    logger.debug(f"current appointment is {appointment.id}")
     return appointment

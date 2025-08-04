@@ -17,6 +17,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 from .models import Appointment, ProviderProfile
+import psutil
 
 load_dotenv()
 
@@ -87,3 +88,12 @@ def handle_exception(exc):
     return JsonResponse({"error": "unknown_error", "message": str(exc)}, status=500)
 
 
+def get_system_stats():
+    return {
+        "cpu_percent": psutil.cpu_percent(interval=1),
+        "ram_percent": psutil.virtual_memory().percent,
+        "load_avg": psutil.getloadavg(),
+        "disk_usage": psutil.disk_usage('/').percent,
+        "num_threads": psutil.cpu_count(logical=True),
+        "uptime_seconds": int(psutil.boot_time()),
+    }

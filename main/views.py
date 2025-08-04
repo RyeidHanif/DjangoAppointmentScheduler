@@ -33,10 +33,11 @@ from .models import (Appointment, CustomerProfile, NotificationPreferences,
                      ProviderProfile, User)
 from django_smart_ratelimit import rate_limit
 from django.utils.decorators import method_decorator
+from .utils import get_system_stats
 
 # Create your views here.
 
-@method_decorator(rate_limit(key='ip', rate='20/m'), name='dispatch')
+
 class Home(TemplateView):
     template_name = "main/home.html"
 
@@ -193,6 +194,7 @@ class AdminDashboardView(LoginRequiredMixin, View):
         categories = dict(categories.most_common())
         provider_dict = dict(provider_dict.most_common())
         statuses = dict(statuses)
+        system_stats = get_system_stats()
 
         return render(
             request,
@@ -208,6 +210,7 @@ class AdminDashboardView(LoginRequiredMixin, View):
                 "page_obj": page_obj,
                 "provider_dict": provider_dict,
                 "categories": categories,
+                "system_stats": system_stats,
             },
         )
 

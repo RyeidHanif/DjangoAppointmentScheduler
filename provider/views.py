@@ -29,7 +29,7 @@ from .utils import (EmailCancelledAppointment, EmailConfirmedAppointment,
                     SendEmailRescheduleAccepted)
 from django.utils.decorators import method_decorator
 from django_smart_ratelimit import rate_limit
-@method_decorator(rate_limit(key='user', rate='20/m' ,skip_if=lambda req: req.user.is_staff or req.user.is_superuser), name='dispatch')
+
 class ProviderDashboardView(LoginRequiredMixin, TemplateView):
     """Main dashboard for a provider with buttons to redirect them to different places"""
 

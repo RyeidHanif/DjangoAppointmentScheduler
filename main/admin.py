@@ -83,6 +83,7 @@ class AppointmentAdmin(admin.ModelAdmin):
         ("recurrence_frequency", "recurrence_until"),
         "total_price",
         "status",
+        "event_id"
     ]
     radio_fields = {"status": admin.VERTICAL}
     search_fields = ["provider__email"]

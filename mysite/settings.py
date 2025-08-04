@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "django_smart_ratelimit",
+    "silk",
 ]
 
 
@@ -73,6 +74,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     'django_smart_ratelimit.middleware.RateLimitMiddleware',
+    'silk.middleware.SilkyMiddleware',
 ]
 
 RATELIMIT_MIDDLEWARE = {
@@ -269,9 +271,19 @@ JAZZMIN_SETTINGS = {
             "name": "Analytics",
             "url": "admin-analytics",
         },
+        {
+            "name": "Silk Profiler",
+            "url": "/silk/",
+            "new_window": False,  
+        }
     ]
 }
 
 
 APPEND_SLASH = True
 RATELIMIT_BACKEND = 'database'
+
+#silk configs 
+SILKY_AUTHENTICATION = True  # only logged-in users can access /silk
+SILKY_AUTHORISATION = True   # only staff users
+SILKY_PYTHON_PROFILER = True  # enables code profiler

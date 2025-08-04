@@ -85,3 +85,5 @@ def handle_exception(exc):
         )
 
     return JsonResponse({"error": "unknown_error", "message": str(exc)}, status=500)
+
+

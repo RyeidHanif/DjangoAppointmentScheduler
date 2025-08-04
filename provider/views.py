@@ -27,8 +27,9 @@ from .forms import AvailabilityForm, SendNoteForm
 from .utils import (EmailCancelledAppointment, EmailConfirmedAppointment,
                     EmailDeclinedAppointment, EmailRescheduleDeclined,
                     SendEmailRescheduleAccepted)
-
-
+from django.utils.decorators import method_decorator
+from django_smart_ratelimit import rate_limit
+@method_decorator(rate_limit(key='user', rate='20/m' ,skip_if=lambda req: req.user.is_staff or req.user.is_superuser), name='dispatch')
 class ProviderDashboardView(LoginRequiredMixin, TemplateView):
     """Main dashboard for a provider with buttons to redirect them to different places"""
 
@@ -341,6 +342,7 @@ class ListPendingAppointmentsView(LoginRequiredMixin, View):
 view_pending_appointments = ListPendingAppointmentsView.as_view()
 
 
+@method_decorator(rate_limit(key='user' , rate='10/h',skip_if=lambda req: req.user.is_staff,), name='dispatch')
 class MyAvailabilityView(LoginRequiredMixin, View):
     """Allows the provider to add a timeblock when they will not be available"""
 

@@ -22,8 +22,10 @@ from .forms import AppointmentRecurrenceForm
 from .utils import (EmailPendingAppointment, EmailRescheduledAppointment,
                     calculate_total_price, change_and_save_appointment,
                     check_appointment_exists, create_and_save_appointment)
+from django_smart_ratelimit import rate_limit
+from django.utils.decorators import method_decorator
 
-
+@method_decorator(rate_limit(key='user', rate='20/m' ,skip_if=lambda req: req.user.is_staff or req.user.is_superuser), name='dispatch')
 class CustomerDashboardView(LoginRequiredMixin, TemplateView):
     """
     Generic Template Vieww to allow user with customer profile to navigate the Application
@@ -109,6 +111,8 @@ class ListProvidersView(LoginRequiredMixin, ListView):
 view_providers = ListProvidersView.as_view()
 
 
+
+@method_decorator(rate_limit(key='user', rate='20/h',skip_if=lambda req: req.user.is_staff,), name='dispatch')
 class ScheduleView(LoginRequiredMixin, View):
     """
     Allows the user to view a specific provider's schedule .
@@ -185,6 +189,7 @@ class ScheduleView(LoginRequiredMixin, View):
 schedule = ScheduleView.as_view()
 
 
+@method_decorator(rate_limit(key='user', rate='20/h',skip_if=lambda req: req.user.is_staff,), name='dispatch')
 class AddAppointmentView(LoginRequiredMixin, View):
     """
     Allows the User to Create and Reschedule Appointments depending upon the mode

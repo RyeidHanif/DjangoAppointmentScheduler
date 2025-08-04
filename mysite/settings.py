@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "django_smart_ratelimit",
 ]
 
 
@@ -71,7 +72,13 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    'django_smart_ratelimit.middleware.RateLimitMiddleware',
 ]
+
+RATELIMIT_MIDDLEWARE = {
+    'DEFAULT_RATE': '30/m',
+    'CONDITION': 'main.utils.skip_if_superuser',
+}
 
 ROOT_URLCONF = "mysite.urls"
 
@@ -267,3 +274,4 @@ JAZZMIN_SETTINGS = {
 
 
 APPEND_SLASH = True
+RATELIMIT_BACKEND = 'database'

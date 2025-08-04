@@ -31,10 +31,12 @@ from main.calendar_client import GoogleCalendarClient
 from .forms import ProviderForm
 from .models import (Appointment, CustomerProfile, NotificationPreferences,
                      ProviderProfile, User)
+from django_smart_ratelimit import rate_limit
+from django.utils.decorators import method_decorator
 
 # Create your views here.
 
-
+@method_decorator(rate_limit(key='ip', rate='20/m'), name='dispatch')
 class Home(TemplateView):
     template_name = "main/home.html"
 

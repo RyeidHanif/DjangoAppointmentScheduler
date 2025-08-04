@@ -22,7 +22,10 @@ from .serializers import (AppointmentSerializer, ProviderAnalyticsSerializer,
                           SlotSerializer, ViewAllProvidersSerializer,
                           WelcomeSerializer)
 
+from django_smart_ratelimit import rate_limit
+from django.utils.decorators import method_decorator
 
+@method_decorator(rate_limit(key='ip', rate='10/h',skip_if=lambda req: req.user.is_staff,), name='dispatch')
 @extend_schema(tags=["Registration"])
 class SignUpUser(generics.CreateAPIView):
     """
@@ -59,7 +62,7 @@ class WelcomeView(APIView):
 
 API_welcome = WelcomeView.as_view()
 
-
+@method_decorator(rate_limit(key='ip', rate='5/m'), name='dispatch')
 @extend_schema(tags=["Personal"])
 class Profile(generics.RetrieveAPIView):
     """
@@ -76,6 +79,7 @@ class Profile(generics.RetrieveAPIView):
 API_user_profile = Profile.as_view()
 
 
+@method_decorator(rate_limit(key='ip' , rate='10/m'), name='dispatch')
 @extend_schema(tags=["Personal"])
 class ProviderAppointments(generics.ListAPIView):
     """
@@ -100,6 +104,7 @@ class ProviderAppointments(generics.ListAPIView):
 API_provider_appoinments = ProviderAppointments.as_view()
 
 
+@method_decorator(rate_limit(key='ip', rate='10/m'), name='dispatch')
 @extend_schema(tags=["Personal"])
 class CustomerAppointments(generics.ListAPIView):
     """
@@ -125,6 +130,7 @@ class CustomerAppointments(generics.ListAPIView):
 API_customer_appointments = CustomerAppointments.as_view()
 
 
+@method_decorator(rate_limit(key='ip', rate='2/m'), name='dispatch')
 @extend_schema(tags=["Services"])
 class APIProviderAvailability(APIView):
     """
@@ -184,7 +190,7 @@ class APIProviderAvailability(APIView):
 
 API_provider_availability = APIProviderAvailability.as_view()
 
-
+@method_decorator(rate_limit(key='ip', rate='5/m'), name='dispatch')
 @extend_schema(tags=["Services"])
 class APIProviderAnalytics(APIView):
     """
@@ -229,6 +235,7 @@ class APIProviderAnalytics(APIView):
 API_provider_analytics = APIProviderAnalytics.as_view()
 
 
+@method_decorator(rate_limit(key='ip', rate='5/m'), name='dispatch')
 @extend_schema(tags=["Services"])
 class APIViewProviders(generics.ListAPIView):
     """

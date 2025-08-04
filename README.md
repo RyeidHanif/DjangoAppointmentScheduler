@@ -239,6 +239,12 @@ The full list of available endpoints is documented using `drf-spectacular` at:
 
 ---
 
+## Rate Limiting 
+* To Prevent abuse of the system , a maximum number of requests per unit time has been added
+* for dashboards and homepage ,it is 20 requests per minute
+* for more resource intensive views  such as add appointment , view schedule , these have been limited to ~10 per hour
+* the API has varied rate limits but more than enough for any user .
+
 
 ## License
 MIT Licence 2025

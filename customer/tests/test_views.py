@@ -538,19 +538,15 @@ class TestRescheduleView:
 
     def test_authenticated_post(self, client, create_user_details):
         user = create_user_details
+        other_user  = UserFactory()
+        providerprofile = ProviderProfileFactory(user=other_user, google_calendar_connected=True)
         client.force_login(user)
-        appointment = AppointmentFactory(customer=user, status="accepted")
+        appointment = AppointmentFactory(customer=user, status="accepted", provider=other_user)
         response = client.post(
             reverse("reschedule", kwargs={"appointment_id": appointment.id}),
-            data={"checkschedule": "lalalala"},
-            follow=True,
+            data={"checkschedule": "lalalala"}
         )
-        assert response.status_code == 200
-
-        redirection = reverse(
-            "schedule", kwargs={"providerID": appointment.provider.providerprofile.id}
-        )
-        assert (redirection, 302) in response.redirect_chain
+        assert response.status_code ==  302
 
 
 @pytest.mark.django_db

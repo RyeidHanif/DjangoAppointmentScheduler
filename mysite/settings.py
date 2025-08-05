@@ -124,7 +124,7 @@ DATABASES = {
         "NAME": "appointmentdb",
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": "localhost",
+        "HOST": "djangoappointmentdb.clk64oqqw0fn.eu-north-1.rds.amazonaws.com",
         "PORT": "5432",
     }
 }

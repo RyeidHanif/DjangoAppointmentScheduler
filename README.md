@@ -6,7 +6,7 @@
 
 This application is designed to support both server-rendered views and a complete RESTful API interface. The system enforces strict policies for appointment handling, features automatic syncs and unavailability tracking via Google Calendar, and supports complex business logic such as pricing models and cancellation bans.
 
-It is currently deployed on Amazon AWS Ec2 with RDS for the PostgreSQL Database  and let's encrypt was used to allow Https
+It is currently deployed on  AWS Ec2 with RDS for the PostgreSQL Database  and let's encrypt was used to allow Https
 Visit it here : apss.duckdns.org 
 
 ---

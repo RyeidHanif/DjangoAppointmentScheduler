@@ -291,3 +291,17 @@ def create_customer_profile(request):
             return redirect("redirectiondashboard")
     form = CreateCustomerProfileForm()
     return render(request, "main/create_customer_profile.html", {"form": form})
+
+
+
+class PrivacyPolicy(TemplateView):
+    template_name = "main/privacy_policy.html"
+
+
+class TermsOfService(TemplateView):
+    template_name = "main/terms_of_service.html"
+
+
+
+privacy_policy = PrivacyPolicy.as_view()
+terms_of_service = TermsOfService.as_view()

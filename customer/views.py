@@ -545,3 +545,4 @@ class BookingHistoryView(LoginRequiredMixin, ListView):
 
 
 booking_history = BookingHistoryView.as_view()
+

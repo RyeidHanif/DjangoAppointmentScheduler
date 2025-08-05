@@ -12,7 +12,6 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, TemplateView
 from dotenv import load_dotenv
 from google.auth.exceptions import RefreshError
@@ -135,7 +134,7 @@ def oauth2callback(request):
     return redirect("provider_dashboard")
 
 
-@method_decorator(cache_page(60 * 5), name="dispatch")
+
 class CancellationPolicy(TemplateView):
     """
     Static page to show cancellation policy for customers and provider

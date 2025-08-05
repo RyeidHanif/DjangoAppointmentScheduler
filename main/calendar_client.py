@@ -38,7 +38,7 @@ class GoogleCalendarClient:
 
     def __init__(self):
         """Sets some initial variables required by multiple methods"""
-        os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+        #os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
         self.clientID = os.getenv("client_id")
         self.clientSecret = os.getenv("client_secret")
         self.base_url = os.getenv("BASE_URL")

@@ -289,7 +289,3 @@ SILKY_AUTHENTICATION = True  # only logged-in users can access /silk
 SILKY_AUTHORISATION = True   # only staff users
 SILKY_PYTHON_PROFILER = True  # enables code profiler
 
-
-SECURE_SSL_REDIRECT = True  # redirects all HTTP to HTTPS (for dev you can toggle)
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True

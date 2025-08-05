@@ -63,11 +63,3 @@ urlpatterns += [
 if settings.DEBUG:
     urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
 
-
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS automatically
-SECURE_HSTS_SECONDS = 3600  # Enable HTTP Strict Transport Security (adjust time as needed)
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') 

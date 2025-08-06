@@ -1,10 +1,6 @@
 # extra utility functions needed for e.g refrehsing tokens ,getting calender service
 import json
-
 import os
-from datetime import datetime, timedelta
-
-
 from datetime import datetime, timedelta
 
 from django.core.exceptions import (FieldError, ObjectDoesNotExist,
@@ -19,17 +15,15 @@ from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
-from .models import Appointment
-
-from .models import ProviderProfile
 
 from .models import Appointment, ProviderProfile
+import psutil
 
 load_dotenv()
 
 
 def cancellation(request, user, appointment):
-    '''Checks whether a useer has cancelled 3 or more appointments withint the last 30 days '''
+    """Checks whether a useer has cancelled 3 or more appointments withint the last 30 days"""
     cutoff_date = now() - timedelta(days=30)
     appointment_date = appointment.date_start.astimezone(get_current_timezone())
     appointment.cancelled_by = user
@@ -48,7 +42,7 @@ def cancellation(request, user, appointment):
 
 
 def force_provider_calendar(provider):
-    '''Once the refresh token of a provider expired, forces the provider to reconnect to thecalendar '''
+    """Once the refresh token of a provider expired, forces the provider to reconnect to thecalendar"""
     profile = ProviderProfile.objects.get(user=provider)
     profile.google_access_token = None
     profile.google_refresh_token = None
@@ -93,3 +87,13 @@ def handle_exception(exc):
 
     return JsonResponse({"error": "unknown_error", "message": str(exc)}, status=500)
 
+
+def get_system_stats():
+    return {
+        "cpu_percent": psutil.cpu_percent(interval=1),
+        "ram_percent": psutil.virtual_memory().percent,
+        "load_avg": psutil.getloadavg(),
+        "disk_usage": psutil.disk_usage('/').percent,
+        "num_threads": psutil.cpu_count(logical=True),
+        "uptime_seconds": int(psutil.boot_time()),
+    }

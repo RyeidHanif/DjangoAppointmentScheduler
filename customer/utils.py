@@ -6,18 +6,12 @@ from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.utils.timezone import (
-    activate,
-    get_current_timezone,
-    localdate,
-    localtime,
-    make_aware,
-    now,
-)
+from django.utils.timezone import (activate, get_current_timezone, localdate,
+                                   localtime, make_aware, now)
 from googleapiclient.errors import HttpError
 
 from main.models import Appointment, ProviderProfile
-
+from logging_conf import logger
 
 activate("Asia/Karachi")
 
@@ -26,6 +20,8 @@ def check_appointment_exists(customer, provider):
     """
     Used to check if an appointment exists between a customer and a provider which is currently in the works
     this is done to prevent one customer from having multiple simultaneous appointments with the same provider
+    return False if appointment Exists
+    return True if appointment does not Exist
     """
     return not Appointment.objects.filter(
         customer=customer,
@@ -159,6 +155,7 @@ def change_and_save_appointment(
     """
     Used in the AddAppointmentview in the case that the appointment is being rescheduled
     """
+    
     old_start = appointment.date_start
     old_end = appointment.date_end
 
@@ -169,7 +166,9 @@ def change_and_save_appointment(
     appointment.recurrence_until = until_date
     appointment.special_requests = request.POST.get("special_requests", "")
     appointment.total_price = total_price
+    
     appointment.save()
+    
 
     if appointment.provider.notification_settings.preferences == "all":
 
@@ -184,4 +183,5 @@ def change_and_save_appointment(
             appointment.provider.email,
             appointment.special_requests,
         )
+    logger.debug(f"current appointment is {appointment.id}")
     return appointment

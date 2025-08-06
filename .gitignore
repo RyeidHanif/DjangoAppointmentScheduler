@@ -213,3 +213,7 @@ accounts/migrations/__pycache__
 .DS_Store
 credentials.json
 api/exception_handler.py
+media
+test_image_*.jpg
+selfsigned.crt 
+selfsigned.key

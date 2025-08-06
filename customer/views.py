@@ -11,29 +11,20 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.timezone import localdate, make_aware
 from django.views import View
 from django.views.generic import ListView, TemplateView
-
 from google.auth.exceptions import RefreshError
 from googleapiclient.errors import HttpError
 
 from main.calendar_client import GoogleCalendarClient
 from main.models import Appointment, NotificationPreferences, ProviderProfile
-from main.utils import (
-    cancellation,
-    force_provider_calendar,
-    handle_exception,
-)
+from main.utils import cancellation, force_provider_calendar, handle_exception
 
 from .forms import AppointmentRecurrenceForm
-from .utils import (
-    EmailPendingAppointment,
-    EmailRescheduledAppointment,
-    calculate_total_price,
-    change_and_save_appointment,
-    check_appointment_exists,
-    create_and_save_appointment,
-)
-
-
+from .utils import (EmailPendingAppointment, EmailRescheduledAppointment,
+                    calculate_total_price, change_and_save_appointment,
+                    check_appointment_exists, create_and_save_appointment)
+from django_smart_ratelimit import rate_limit
+from django.utils.decorators import method_decorator
+from logging_conf import logger
 class CustomerDashboardView(LoginRequiredMixin, TemplateView):
     """
     Generic Template Vieww to allow user with customer profile to navigate the Application
@@ -90,13 +81,16 @@ class ListProvidersView(LoginRequiredMixin, ListView):
             try:
 
                 return ProviderProfile.objects.filter(
-                    user__username__icontains=query, google_calendar_connected=True,
+                    user__username__icontains=query,
+                    google_calendar_connected=True,
                 ).exclude(user=self.request.user)
             except Exception as e:
                 return handle_exception(e)
 
         else:
-            return ProviderProfile.objects.filter(google_calendar_connected=True ).exclude(user=self.request.user)
+            return ProviderProfile.objects.filter(
+                google_calendar_connected=True
+            ).exclude(user=self.request.user)
 
     def post(self, request, *args, **kwargs):
         messages.info(
@@ -114,6 +108,7 @@ class ListProvidersView(LoginRequiredMixin, ListView):
 
 
 view_providers = ListProvidersView.as_view()
+
 
 
 class ScheduleView(LoginRequiredMixin, View):
@@ -190,6 +185,7 @@ class ScheduleView(LoginRequiredMixin, View):
 
 
 schedule = ScheduleView.as_view()
+
 
 
 class AddAppointmentView(LoginRequiredMixin, View):
@@ -306,6 +302,9 @@ class AddAppointmentView(LoginRequiredMixin, View):
         self.appointment = Appointment.objects.filter(
             customer=self.customer, provider=self.provider_user
         ).first()
+        if not self.appointment:
+            messages.error(request, "No existing appointment found for recheduling ")
+            return redirect("view_appointments")
         self.recurrence_form = AppointmentRecurrenceForm(
             initial={
                 "recurrence": self.appointment.recurrence_frequency,
@@ -313,9 +312,7 @@ class AddAppointmentView(LoginRequiredMixin, View):
             },
             appointment_date=self.start_datetime,
         )
-        if not self.appointment:
-            messages.error(request, "No existing appointment found for recheduling ")
-            return redirect("view_appointments")
+
         return self.render_template(request)
 
     def handle_reschedule_post(self, request, *args, **kwargs):
@@ -349,6 +346,7 @@ class AddAppointmentView(LoginRequiredMixin, View):
             self.appointment = Appointment.objects.filter(
                 customer=self.customer, provider=self.provider_user
             ).first()
+           
             self.appointment = change_and_save_appointment(
                 request,
                 self.appointment,
@@ -358,6 +356,7 @@ class AddAppointmentView(LoginRequiredMixin, View):
                 self.end_datetime,
                 self.total_price,
             )
+           
             request.session.pop("mode", None)
             if self.appointment:
                 messages.success(request, " appointment reschedule successfully ")
@@ -367,7 +366,7 @@ class AddAppointmentView(LoginRequiredMixin, View):
                 return redirect("view_appointments")
         if request.POST.get("cancel"):
             messages.info(request, "reschedule ancelled")
-            return redirect("view_appoinments")
+            return redirect("view_appointments")
 
     def render_template(self, request, *args, **kwargs):
         return render(
@@ -498,7 +497,7 @@ class ViewAppointmentsView(LoginRequiredMixin, View):
                 logout(request)
                 messages.warning(
                     request,
-                    "You have cancelled too many appointments in a shot span , your account has been deactivated ",
+                    "You have cancelled too many appointments in a short span , your account has been deactivated ",
                 )
 
                 return redirect("home")
@@ -546,3 +545,4 @@ class BookingHistoryView(LoginRequiredMixin, ListView):
 
 
 booking_history = BookingHistoryView.as_view()
+

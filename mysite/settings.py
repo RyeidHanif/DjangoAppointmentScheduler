@@ -16,7 +16,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-
 # Load environment variables from the .env file
 load_dotenv()
 
@@ -34,14 +33,14 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*", "testserver", "localhost", "accounts.google.com"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
     "accounts",
-    'jazzmin',
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -55,12 +54,14 @@ INSTALLED_APPS = [
     "provider",
     "api",
     "rest_framework",
-    'drf_spectacular',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-   
+    "drf_spectacular",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "django_smart_ratelimit",
+    "silk",
+    "django_extensions",
 ]
 
 
@@ -72,9 +73,15 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-     "allauth.account.middleware.AccountMiddleware",
-
+    "allauth.account.middleware.AccountMiddleware",
+    'django_smart_ratelimit.middleware.RateLimitMiddleware',
+    'silk.middleware.SilkyMiddleware',
 ]
+
+RATELIMIT_MIDDLEWARE = {
+    'DEFAULT_RATE': '90/m',
+    'CONDITION': 'main.utils.skip_if_superuser',
+}
 
 ROOT_URLCONF = "mysite.urls"
 
@@ -88,21 +95,12 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                'django.template.context_processors.request',
+                "django.template.context_processors.request",
             ],
         },
     },
 ]
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-    }
-}
 
 
 WSGI_APPLICATION = "mysite.wsgi.application"
@@ -115,9 +113,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "appointmentdb",
-        "USER": os.getenv("USER"),
-        "PASSWORD": os.getenv("PASSWORD"),
-        "HOST": "localhost",
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("HOST", "localhost"),
         "PORT": "5432",
     }
 }
@@ -144,9 +142,9 @@ AUTH_PASSWORD_VALIDATORS = [
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -192,7 +190,6 @@ STATIC_URL = "static/"  # The static folder ill use to  load static files onto t
 MEDIA_URL = "/media/"  # the url prefix for serving uploaded media
 
 
-
 MEDIA_ROOT = os.path.join(
     BASE_DIR, "media"
 )  # the actual folder to which django writes the images to
@@ -213,76 +210,83 @@ SIMPLE_JWT = {
 }
 
 
-
-
 AUTHENTICATION_BACKENDS = [
-    
     # Needed to login by username in Django admin, regardless of `allauth`
-    'django.contrib.auth.backends.ModelBackend',
+    "django.contrib.auth.backends.ModelBackend",
     # `allauth` specific authentication methods, such as login by email
-    'allauth.account.auth_backends.AuthenticationBackend',
-    
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
-    'google': {
+    "google": {
         # For each OAuth based provider, either add a ``SocialApp``
         # (``socialaccount`` app) containing the required client
         # credentials, or list them here:
-        'APP': {
-            'client_id': os.getenv("client_id"),
-            'secret': os.getenv("client_secret"),
-            'key': ''
+        "APP": {
+            "client_id": os.getenv("client_id"),
+            "secret": os.getenv("client_secret"),
+            "key": "",
         },
-        'SCOPE': [
-            'profile',
-            'email',
+        "SCOPE": [
+            "profile",
+            "email",
         ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
+        "AUTH_PARAMS": {
+            "access_type": "online",
         },
     }
 }
 
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
-ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 
 
-ACCOUNT_LOGIN_METHODS = {'email'} # login by email
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+ACCOUNT_LOGIN_METHODS = {"email"}  # login by email
+ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 ACCOUNT_UNIQUE_EMAIL = True
 SOCIALACCOUNT_AUTO_SIGNUP = True  # auto create user if no match
 
 # This is the magic:
-SOCIALACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
-SOCIALACCOUNT_ADAPTER = 'accounts.adapter.SocialAccountAdapter'
-
+SOCIALACCOUNT_ADAPTER = "allauth.account.adapter.DefaultAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "accounts.adapter.SocialAccountAdapter"
 
 
 JAZZMIN_UI_TWEAKS = {
-   
     "dark_mode_theme": "darkly",
 }
 
 
 JAZZMIN_SETTINGS = {
-
-
-
     "topmenu_links": [
-        
         {
             "name": "Analytics",
-            "url": "admin-analytics",  
+            "url": "admin-analytics",
         },
+        {
+            "name": "Silk Profiler",
+            "url": "/silk/",
+            "new_window": False,  
+        }
     ]
-   
 }
 
 
 APPEND_SLASH = True
+RATELIMIT_BACKEND = 'database'
 
+#silk configs 
+SILKY_AUTHENTICATION = True  # only logged-in users can access /silk
+SILKY_AUTHORISATION = True   # only staff users
+SILKY_PYTHON_PROFILER = True  # enables code profiler
 
+# Read environment variable, default to False for local dev
+DJANGO_PRODUCTION = int(os.getenv('DJANGO_PRODUCTION', '0'))
 
-
+CSRF_COOKIE_SECURE = bool(DJANGO_PRODUCTION)
+SESSION_COOKIE_SECURE = bool(DJANGO_PRODUCTION)
+SECURE_SSL_REDIRECT = bool(DJANGO_PRODUCTION)
+SECURE_HSTS_SECONDS = 3600 if DJANGO_PRODUCTION else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = bool(DJANGO_PRODUCTION)
+SECURE_HSTS_PRELOAD = bool(DJANGO_PRODUCTION)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if DJANGO_PRODUCTION else None

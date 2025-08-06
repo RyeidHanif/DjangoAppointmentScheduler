@@ -115,7 +115,7 @@ DATABASES = {
         "NAME": "appointmentdb",
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("HOST"),
+        "HOST": os.getenv("HOST", "localhost"),
         "PORT": "5432",
     }
 }

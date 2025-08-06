@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:
+ 
 
 jobs:
   build:
@@ -30,6 +30,7 @@ jobs:
 
     env:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DJANGO_PRODUCTION: ${{ secrets.DJANGO_PRODUCTION }}
       POSTGRES_DB: appointmentdb
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}

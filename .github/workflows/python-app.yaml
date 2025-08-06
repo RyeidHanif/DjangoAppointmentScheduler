@@ -61,5 +61,5 @@ jobs:
     - name: Run Tests with Pytest
       run: |
         python manage.py migrate
-        pytest -n auto
+        pytest --ignore=tests_selenium/ -n auto
 

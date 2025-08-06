@@ -169,7 +169,8 @@ sqlparse==0.5.3
 tzdata==2025.2
 uritemplate==4.2.0
 urllib3==2.5.0
-django_extensionsasgiref==3.9.1
+django_extensions
+asgiref==3.9.1
 attrs==25.3.0
 black==25.1.0
 cachetools==5.5.2

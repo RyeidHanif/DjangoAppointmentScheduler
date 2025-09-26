@@ -3,25 +3,26 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.keys import Keys
 
 from django.contrib.auth.models import User
 from main.models import CustomerProfile, ProviderProfile
 from .factories import UserFactory, CustomerProfileFactory, ProviderProfileFactory
-import time 
+import time
 
 
 @pytest.fixture(scope="session")
-def chrome_options():
+def firefox_options():
     options = Options()
-    options.add_argument("--window-size=1920,1080")
+    options.add_argument("--width=1920")
+    options.add_argument("--height=1080")
     return options
 
 
 @pytest.fixture(scope="session")
-def driver(chrome_options):
-    driver = webdriver.Chrome(options=chrome_options)
+def driver(firefox_options):
+    driver = webdriver.Firefox(options=firefox_options)
     yield driver
     driver.quit()
 
@@ -80,11 +81,6 @@ def test_dashboard_redirects(driver, live_server, create_user, button_name, expe
     assert expected_title in driver.title
 
 
-
-
-
-
-
 def test_disconnect_google_calendar(driver, live_server, create_user):
     user = create_user
     login_and_reach_dashboard(driver, live_server, user)
@@ -108,21 +104,14 @@ def test_disconnect_google_calendar(driver, live_server, create_user):
         window.scrollTo({top: y, behavior: 'smooth'});
     """, disconnect_button)
 
-
     time.sleep(1)
 
-  
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.NAME, "disconnect"))
     ).click()
-
 
     WebDriverWait(driver, 10).until(EC.title_is("Home Page"))
 
     # Re-fetch user from database to confirm disconnection
     check_user = User.objects.get(id=user.id)
     assert not check_user.providerprofile.google_calendar_connected
-
-
-
-

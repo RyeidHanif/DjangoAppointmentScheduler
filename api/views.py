@@ -246,7 +246,7 @@ class APIViewProviders(generics.ListAPIView):
     serializer_class = ViewAllProvidersSerializer
 
     def get_queryset(self):
-        return ProviderProfile.objects.all().exclude(user=self.request.user)
+        return ProviderProfile.objects.all().exclude(user=self.request.user).order_by('id')
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
